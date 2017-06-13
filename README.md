@@ -49,7 +49,7 @@ We will now examine this command line-by-line.
 mpiexec -n 2 Ray \
 ```
 
-mpiexec is the paralellization software used by Ray. The "-n" allows to indicate how many processors should be used for the analysis. For this tutorial, we will be using 2 cores. In a real project, the number of processors will depend on the amount of sequence to be assembled and on the size of the profiling datasets (which we will explain soon). To assemble a single genome, we often use a value of 32 while for complex microbiomes we can use up to 128 and 256 processors.
+Mpiexec is the paralellization software used by Ray. The "-n" allows to indicate how many processors should be used for the analysis. For this tutorial, we will be using 2 cores. In a real project, the number of processors will depend on the amount of sequence to be assembled and on the size of the profiling datasets (which we will explain soon). To assemble a single genome, we often use a value of 32 while for complex microbiomes we can use up to 128 and 256 processors.
 
 ```
  -o \
@@ -64,17 +64,29 @@ The "-o" is the output directory.
  31 \
 ```
  
-The "-k" is the k-mer length used for the analysis. In a majority of cases a k-mer length of 31 will provide optimal assembly. However, depending on the sequencing depth and on the complexity of the organism or community, a different value for k could be optimal. 
+The "-k" is the k-mer length used for the analysis. In a majority of cases a k-mer length of 31 will provide optimal assembly. However, depending on the sequencing depth and on the complexity of the organism or community, a different value for k could be optimal. In doubt, it can be useful to compare assemblies using different values of k.
  
 ```
  -p \
  Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz \
  Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz \
 ```
+
+The "-p" tells Ray to use paired-end reads. Therefore, we give it to files, one for read 1 and one for read to. Alternatively, "-s" can be used for single reads.
+
 ```
  -search \
  genomes \
-``` 
+```
+
+The "-search" function allows to quantify the k-mer content based on a reference database. In this example, the genome directory contains three genomes :
+
+* Clostridium_difficile_630.fasta
+* Escherichia_coli_K_12_substr__DH10B.fasta
+* Leuconostoc_lactis_KCTC_3528_uid68683.fasta
+
+In a real analysis, this directory can contain thousands of bacterial genomes. Several directories can be given to the software by repeating the "-search" argument. For example, if working on the human microbiome, the following sequence file could be included in addition to bacterial genomes : "-search humangenome". This is important as k-mers from the host can sometimes cause false positive signals for certain bacteria.
+
 ```
  -with-taxonomy \
  Genome-to-Taxon.tsv \
@@ -82,8 +94,13 @@ The "-k" is the k-mer length used for the analysis. In a majority of cases a k-m
  Taxon-Names.tsv
 ```
 
+This final argument tells Ray which taxonomy to use.
 
+* Genome-to-Taxon.tsv : makes the link between genome sequences and their taxonomical classification. For this tutorial, we use a simplified version for the Genome-to-Taxon.tsv file since the complete version can be several Gb. 
+* TreeOfLife-Edges.tsv : Allows to reconstitute the taxonomical tree.
+* Taxon-Names.tsv : Gives the names of the nodes of the taxonomical tree (the taxa names).
 
+When adding new genomes to the taxonomy, one must make sure to include the matching information in these three files.
 
 ## Step 2 - Understanding the Ray output directory
 
