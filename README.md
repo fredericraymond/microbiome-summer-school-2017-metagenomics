@@ -24,8 +24,10 @@ For the purpose of this tutorial, we will use a rarefied dataset that will not p
 
 ### Assemble and profile sample
 
+The command to run the assembly and profiling using Ray Meta is as follow :
+
 ```
-mpiexec -n 4 Ray \
+mpiexec -n 2 Ray \
  -o \
  Sample_RVH-2106-Ray-2017-06-06 \
  -k \
@@ -40,6 +42,47 @@ mpiexec -n 4 Ray \
  TreeOfLife-Edges.tsv \
  Taxon-Names.tsv
 ```
+
+We will now examine this command line-by-line.
+
+```
+mpiexec -n 2 Ray \
+```
+
+mpiexec is the paralellization software used by Ray. The "-n" allows to indicate how many processors should be used for the analysis. For this tutorial, we will be using 2 cores. In a real project, the number of processors will depend on the amount of sequence to be assembled and on the size of the profiling datasets (which we will explain soon). To assemble a single genome, we often use a value of 32 while for complex microbiomes we can use up to 128 and 256 processors.
+
+```
+ -o \
+ Sample_RVH-2106-Ray-2017-06-06 \
+```
+
+The "-o" is the output directory.
+
+
+```
+ -k \
+ 31 \
+```
+ 
+The "-k" is the k-mer length used for the analysis. In a majority of cases a k-mer length of 31 will provide optimal assembly. However, depending on the sequencing depth and on the complexity of the organism or community, a different value for k could be optimal. 
+ 
+```
+ -p \
+ Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz \
+ Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz \
+```
+```
+ -search \
+ genomes \
+``` 
+```
+ -with-taxonomy \
+ Genome-to-Taxon.tsv \
+ TreeOfLife-Edges.tsv \
+ Taxon-Names.tsv
+```
+
+
 
 
 ## Step 2 - Understanding the Ray output directory
