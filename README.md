@@ -24,7 +24,7 @@ For the purpose of this tutorial, we will use a rarefied dataset that will not p
 
 ### Assemble and profile sample
 
-'''
+```
 mpiexec -n 4 Ray \
  -o \
  Sample_RVH-2106-Ray-2017-06-06 \
@@ -39,7 +39,7 @@ mpiexec -n 4 Ray \
  Genome-to-Taxon.tsv \
  TreeOfLife-Edges.tsv \
  Taxon-Names.tsv
-'''
+```
 
 
 ## Step 2 - Understanding the Ray output directory
