@@ -4,7 +4,16 @@ This is the tutorial for the assembly-based metagenomic course of the 2017 Micro
 
 ## Software requirements
 
-Here are the softwares
+For this tutorial, you will need the following software :
+
+* Ray Meta : https://github.com/zorino/ray
+* Ray Platform (required to install Ray) : https://github.com/sebhtml/RayPlatform
+* Ray Meta Tools : https://github.com/fredericraymond/RayMetaTools
+
+The tutorial will be performed on the following dataset :
+
+TBD
+
 
 ## Step 1 - Assembling a microbiome using Ray Meta
 
