@@ -174,10 +174,7 @@ Now, is this assembly any good? To investigate, we will look at the *OutputNumbe
 
 ```
 more OutputNumbers.txt
-```
-<details> 
-  <summary>See *OutputNumbers.txt*</summary>
-  ```
+
 Contigs >= 100 nt
  Number: 9649
  Total length: 1862984
@@ -206,27 +203,26 @@ Scaffolds >= 500 nt
  N50: 1449
  Median: 707
  Largest: 6958
- ```
-</details>
+```
+
 
 How do you interpret these statistics?
+
 
 <details> 
   <summary>Q1: What can you say about his assembly? Is it good? Do we have good coverage of the expected genome? </summary>
    The total length of this assembly is low, less than 2 million including all contigs. When looking only at contigs longer than 500 nucleotide, the assembly is only 250 kb.  The number of contigs is very high for the length of the assembly. Here, we were assembling a Clostridium difficile genome. Thus, we were expecting a genome length around 4 Mb. To troubleshoot these results, we will look at the sequencing statistics.
 </details>
 
+
 The number of reads used for assembly can be found in the file *NumberOfSequences.txt*
+
 
 ```
 more NumberOfSequences.txt
-```
-
-<details> 
-  <summary>Content of *NumberOfSequences.txt*</summary>
 
   Files: 2
-```
+
 FileNumber: 0
 	FilePath: Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz
  	NumberOfSequences: 1341231
@@ -244,10 +240,10 @@ Summary
 	NumberOfSequences: 2682462
 	FirstSequence: 0
 	LastSequence: 2682461
+
 ```
-</details>
 
-
+The number of reads in the analysis is 2,682,462. The number of nucleotides sequenced is 101 * 2,682,462 = 270,928,662. If we divide it by the expected genome length, we get 270,928,662 / 4e6 = 68X coverage, which should be sufficient for analysis. However, it is not the case.
 
 
 
