@@ -139,7 +139,7 @@ more ElapsedTime.txt
 
 Precomputed results for the assembly of the sample is available in the following directory :  *~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-06*.
 
-We will look at the final version of the precomputed assembly. Note that this assembly was done using 4 processors, si it took approximately half the time of our current assemblyé
+We will look at the final version of the precomputed assembly. Note that this assembly was done using 4 processors, so it took approximately half the time of our current assembly.
 
 ```
 cd ~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-06
