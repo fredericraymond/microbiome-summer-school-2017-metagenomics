@@ -176,7 +176,8 @@ Now, is this assembly any good? To investigate, we will look at the *OutputNumbe
 more OutputNumbers.txt
 ```
 <details> 
-  <summary>See output</summary>
+  <summary>See *OutputNumbers.txt*</summary>
+  ```
 Contigs >= 100 nt
  Number: 9649
  Total length: 1862984
@@ -205,6 +206,7 @@ Scaffolds >= 500 nt
  N50: 1449
  Median: 707
  Largest: 6958
+ ```
 </details>
 
 How do you interpret these statistics?
@@ -224,7 +226,7 @@ more NumberOfSequences.txt
   <summary>Content of *NumberOfSequences.txt*</summary>
 
   Files: 2
-
+```
 FileNumber: 0
 	FilePath: Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz
  	NumberOfSequences: 1341231
@@ -242,7 +244,7 @@ Summary
 	NumberOfSequences: 2682462
 	FirstSequence: 0
 	LastSequence: 2682461
-
+```
 </details>
 
 
