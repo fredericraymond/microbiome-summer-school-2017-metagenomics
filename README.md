@@ -213,8 +213,8 @@ How do you interpret these statistics?
   <summary>Q1: What can you say about his assembly? Is it good? Do we have good coverage of the expected genome? </summary>
    The total length of this assembly is low, less than 2 million including all contigs. When looking only at contigs longer than 500 nucleotide, the assembly is only 250 kb.  The number of contigs is very high for the length of the assembly. Here, we were assembling a Clostridium difficile genome. Thus, we were expecting a genome length around 4 Mb. To troubleshoot these results, we will look at the sequencing statistics.
 </details>
-
-
+<br>
+<br>
 The number of reads used for assembly can be found in the file *NumberOfSequences.txt*
 
 
@@ -243,12 +243,27 @@ Summary
 
 ```
 
-The number of reads in the analysis is 2,682,462. The number of nucleotides sequenced is 101 * 2,682,462 = 270,928,662. If we divide it by the expected genome length, we get 270,928,662 / 4e6 = 68X coverage, which should be sufficient for analysis. However, it is not the case.
+The number of reads in the analysis is 2,682,462. The number of nucleotides sequenced is 37 * 2,682,462 = 270,928,662. If we divide it by the expected genome length, we get 270,928,662 / 4e6 = 68X coverage, which should be sufficient for analysis. However, it is obviously not the case.
 
+Further troubleshooting can be done by looking at the *CoverageDistributionAnalysis.txt* file 
 
+```
+more CoverageDistributionAnalysis.txt
 
+k-mer length:   21
+Number of k-mers in the distributed de Bruijn graph: 10526772
+Lowest coverage observed:       2
+MinimumCoverage:        2
+PeakCoverage:   2
+RepeatCoverage: 2
+Number of k-mers with at least MinimumCoverage: 10526772 k-mers
+Percentage of vertices with coverage 2: 12.1506 %
+DistributionFile: Sample_RVH-2106-Ray-2017-06-06/CoverageDistribution.txt
+```
 
-What's important and what's cool
+The information of interest is the number of k-mers with at least MinimumCoverage: 10526772 k-mers. This estimates the size of the de bruijn graph that attains the minimum coverage, in this case a depth of 2. If we divide this number by 2 (to account for the two strands of DNA), we can estimate the actual size of the genome or metagenome. In this case, the genome size would be approximately 5 Mb, which is slightly bigger than a C. difficile genome.
+
+Now, we would like to compare these number with those from a more profound 
 
 ## Step 3 - Profiling results
 
