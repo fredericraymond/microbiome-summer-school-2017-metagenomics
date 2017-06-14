@@ -263,7 +263,29 @@ DistributionFile: Sample_RVH-2106-Ray-2017-06-06/CoverageDistribution.txt
 
 The information of interest is the number of k-mers with at least MinimumCoverage: 10526772 k-mers. This estimates the size of the de bruijn graph that attains the minimum coverage, in this case a depth of 2. If we divide this number by 2 (to account for the two strands of DNA), we can estimate the actual size of the genome or metagenome. In this case, the genome size would be approximately 5 Mb, which is slightly bigger than a C. difficile genome.
 
-Now, we would like to compare these number with those from a more profound 
+We will look into to profiling results of Ray to investigate the taxonomical content of the sample. This information is found in the BiologicalAbundance folder.
+
+```
+cd BiologicalAbundances
+ls
+
+0.Profile.genomes.tsv              0.Profile.TaxonomyRank=no rank.tsv  0.Profile.TaxonomyRank=superkingdom.tsv  _Frequencies
+0.Profile.TaxonomyRank=class.tsv   0.Profile.TaxonomyRank=order.tsv    _Coloring                                _GeneOntology
+0.Profile.TaxonomyRank=family.tsv  0.Profile.TaxonomyRank=phylum.tsv   _DeNovoAssembly                          genomes
+0.Profile.TaxonomyRank=genus.tsv   0.Profile.TaxonomyRank=species.tsv  _Directories.tsv                         _Taxonomy
+
+```
+
+The .tsv files provide the proportion of samples that could be identified as taxonomic units (in k-mers).
+
+Please take a few minutes to look at the .tsv files and try to understand what is happening with this assembly.
+
+<details> 
+  <summary>Q2: Is everything ok? </summary>
+   In the 0.Profile.TaxonomyRank=species.tsv, we can see that 35% of the sample is *Leuconostoc lactis* while the expected *C. difficile* is only 65% of the sample. The *E. coli* signal is background noise.
+</details>
+<br>
+<br>
 
 ## Step 3 - Profiling results
 
