@@ -15,6 +15,9 @@ The tutorial will be performed on the following dataset :
 
 TBD
 
+## Introduction
+
+Ray Meta is one of the many softwares that allow the assembly of metagenomes. As explained in the plenary session, each assembly software has is advantages and inconveniences. The main advantage of Ray Meta is that it integrates assembly with taxonomical profiling. It also allow to identify the putative taxonomical origin of contigs. These are tools that are very useful when working with metagenomic data. As a drawback, Ray Meta may output smaller assemblies that other softwares such as MegaHit or MetaSpades. During your metagenomic work, it is important to consider all the available tools in order to make the best of your data. In this tutorial, I will show how to use Ray Meta and interpret its output in order to better understand important concepts relating to assembly-based metagenomics.
 
 ## Step 1 - Assembling a microbiome using Ray Meta
 
@@ -26,10 +29,11 @@ For the purpose of this tutorial, we will use a rarefied dataset that will not p
 
 The command to run the assembly and profiling using Ray Meta is as follow :
 
+
 ```
 mpiexec -n 2 Ray \
  -o \
- Sample_RVH-2106-Ray-2017-06-06 \
+ Sample_RVH-2106-Ray-2017-06-18 \
  -k \
  21 \
  -p \
@@ -43,7 +47,29 @@ mpiexec -n 2 Ray \
  Taxon-Names.tsv
 ```
 
-We will now examine this command line-by-line.
+Please go to the ~/SummerSchoolMicrobiome/UsingRayMeta/ folder and run the preceding command. 
+
+
+```
+cd ~/SummerSchoolMicrobiome/UsingRayMeta/
+
+mpiexec -n 2 Ray \
+ -o \
+ Sample_RVH-2106-Ray-2017-06-18 \
+ -k \
+ 21 \
+ -p \
+ Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz \
+ Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz \
+ -search \
+ genomes \
+ -with-taxonomy \
+ Genome-to-Taxon.tsv \
+ TreeOfLife-Edges.tsv \
+ Taxon-Names.tsv
+```
+
+This will take around 45 minutes, so we will continue the tutorial below. Now that it is running, We will examine this command line-by-line.
 
 ```
 mpiexec -n 2 Ray \
@@ -93,16 +119,93 @@ In a real analysis, this directory can contain thousands of bacterial genomes. S
  TreeOfLife-Edges.tsv \
  Taxon-Names.tsv
 ```
-
 This final argument tells Ray which taxonomy to use.
 
-* Genome-to-Taxon.tsv : makes the link between genome sequences and their taxonomical classification. For this tutorial, we use a simplified version for the Genome-to-Taxon.tsv file since the complete version can be several Gb. 
-* TreeOfLife-Edges.tsv : Allows to reconstitute the taxonomical tree.
-* Taxon-Names.tsv : Gives the names of the nodes of the taxonomical tree (the taxa names).
+* *Genome-to-Taxon.tsv* : makes the link between genome sequences and their taxonomical classification. For this tutorial, we use a simplified version for the Genome-to-Taxon.tsv file since the complete version can be several Gb. 
+* *TreeOfLife-Edges.tsv* : Allows to reconstitute the taxonomical tree.
+* *Taxon-Names.tsv* : Gives the names of the nodes of the taxonomical tree (the taxa names).
 
 When adding new genomes to the taxonomy, one must make sure to include the matching information in these three files.
 
+
 ## Step 2 - Understanding the Ray output directory
+
+How is our assembly doing? To see at which step the assembly is currently, we can consult the file *ElapsedTime.txt*.
+
+```
+cd ~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-18
+more ElapsedTime.txt
+```
+
+Precomputed results for the assembly of the sample is available in the following directory :  *~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-06*.
+
+We will look at the final version of the precomputed assembly. Note that this assembly was done using 4 processors, si it took approximately half the time of our current assemblyé
+
+```
+cd ~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-06
+more ElapsedTime.txt
+
+  Network testing	2017-06-06T15:17:42	0 seconds	0 seconds
+  Counting sequences to assemble	2017-06-06T15:17:44	2 seconds	2 seconds
+  Sequence loading	2017-06-06T15:17:52	8 seconds	10 seconds
+  K-mer counting	2017-06-06T15:18:18	26 seconds	36 seconds
+  Coverage distribution analysis	2017-06-06T15:18:21	3 seconds	39 seconds
+  Graph construction	2017-06-06T15:18:53	32 seconds	1 minutes, 11 seconds
+  Null edge purging	2017-06-06T15:19:35	42 seconds	1 minutes, 53 seconds
+  Selection of optimal read markers	2017-06-06T15:20:20	45 seconds	2 minutes, 38 seconds
+  Detection of assembly seeds	2017-06-06T15:21:57	1 minutes, 37 seconds	4 minutes, 15 seconds
+  Estimation of outer distances for paired reads	2017-06-06T15:22:02	5 seconds	4 minutes, 20 seconds
+  Bidirectional extension of seeds	2017-06-06T15:23:20	1 minutes, 18 seconds	5 minutes, 38 seconds
+  Merging of redundant paths	2017-06-06T15:24:10	50 seconds	6 minutes, 28 seconds
+  Generation of contigs	2017-06-06T15:24:11	1 seconds	6 minutes, 29 seconds
+  Scaffolding of contigs	2017-06-06T15:25:19	1 minutes, 8 seconds	7 minutes, 37 seconds
+  Counting sequences to search	2017-06-06T15:25:19	0 seconds	7 minutes, 37 seconds
+  Graph coloring	2017-06-06T15:25:28	9 seconds	7 minutes, 46 seconds
+  Counting contig biological abundances	2017-06-06T15:25:31	3 seconds	7 minutes, 49 seconds
+  Counting sequence biological abundances	2017-06-06T15:25:39	8 seconds	7 minutes, 57 seconds
+  Loading taxons	2017-06-06T15:25:42	3 seconds	8 minutes, 0 seconds
+  Loading tree	2017-06-06T15:25:51	9 seconds	8 minutes, 9 seconds
+  Processing gene ontologies	2017-06-06T15:25:57	6 seconds	8 minutes, 15 seconds
+  Computing neighbourhoods	2017-06-06T15:25:57	0 seconds	8 minutes, 15 seconds
+
+```
+
+Now, is this assembly any good? To investigate, we will look at the *OutputNumbers.txt* file.
+
+```
+more OutputNumbers.txt
+
+Contigs >= 100 nt
+ Number: 9649
+ Total length: 1862984
+ Average: 193
+ N50: 196
+ Median: 148
+ Largest: 6958
+Contigs >= 500 nt
+ Number: 305
+ Total length: 253235
+ Average: 830
+ N50: 764
+ Median: 644
+ Largest: 6958
+Scaffolds >= 100 nt
+ Number: 9557
+ Total length: 1880491
+ Average: 196
+ N50: 197
+ Median: 147
+ Largest: 6958
+Scaffolds >= 500 nt
+ Number: 251
+ Total length: 288026
+ Average: 1147
+ N50: 1449
+ Median: 707
+ Largest: 6958
+```
+
+
 
 What's important and what's cool
 
