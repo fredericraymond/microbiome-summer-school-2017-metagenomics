@@ -17,7 +17,7 @@ TBD
 
 ## Introduction
 
-Ray Meta is one of the many softwares that allow the assembly of metagenomes. As explained in the plenary session, each assembly software has is advantages and inconveniences. The main advantage of Ray Meta is that it integrates assembly with taxonomical profiling. It also allow to identify the putative taxonomical origin of contigs. These are tools that are very useful when working with metagenomic data. As a drawback, Ray Meta may output smaller assemblies that other softwares such as MegaHit or MetaSpades. During your metagenomic work, it is important to consider all the available tools in order to make the best of your data. In this tutorial, I will show how to use Ray Meta and interpret its output in order to better understand important concepts relating to assembly-based metagenomics.
+Ray Meta is one of the many softwares that allow the assembly of metagenomes. As explained in the plenary session, each assembly software has its advantages and inconveniences. The main advantage of Ray Meta is that it integrates assembly with taxonomical profiling. It also allow to identify the putative taxonomical origin of contigs. These are tools that are very useful when working with metagenomic data. The scalability of Ray makes it supercomputer friendly and thus useful to work on large metagenomic studies with samples that have hundreds of millions of reads. As a drawback, Ray Meta may output smaller assemblies that other softwares such as MegaHit or MetaSpades. During your metagenomic work, it is important to consider all the available tools in order to make the best of your data. In this tutorial, I will show how to use Ray Meta and interpret its output in order to better understand important concepts relating to assembly-based metagenomics.
 
 ## Step 1 - Assembling a microbiome using Ray Meta
 
@@ -204,6 +204,18 @@ Scaffolds >= 500 nt
  Median: 707
  Largest: 6958
 ```
+
+<details> 
+  <summary>Q1: What can you say about his assembly? Is it good? Do we have good coverage of the expected genome? </summary>
+   The total length of this assembly is low, less than 2 million including all contigs. When looking only at contigs longer than 500 nucleotide, the assembly is only 250 kb. Here, we were assembling a Clostridium difficile genome. Thus, we were expecting a genome length around 4 Mb.
+</details>
+
+To troubleshoot these results,
+
+
+
+
+
 
 
 
