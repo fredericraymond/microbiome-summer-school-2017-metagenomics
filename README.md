@@ -332,7 +332,10 @@ contig-553000000        21      732     R       Leuconostoc_lactis_KCTC_3528_uid
 
 For each contig, we get several information, notably the lenght of the contig, the reference sequence matching the contig and the proportion of the contig matched by the reference sequence. The problem (or the advantage?) with this file is that it includes several entry for each contig, providing its similarity with several sequences from the reference database.  For a small community like this one, we could analyse this file. However, for more complex metagenome, we need help!
 
-Open a new terminal window and enter the following commands to download the laughing-nemesis last common ancestor tool for Ray Meta.
+
+We will not be running the following steps since it take a while. It has already been computed and available in the directory. 
+
+Enter the following commands to download the laughing-nemesis last common ancestor tool for Ray Meta.
 
 ```
 cd ~
@@ -340,4 +343,73 @@ mkdir software
 cd software
 git clone https://github.com/plpla/laughing-nemesis.git
 ```
+
+We would then use tho following command line to run it on our assembly :
+
+```
+python ~/software/laughing-nemesis/FindLastCommonAncester.py lca -d ~/SummerSchoolMicrobiome/Sample_RVH-2106-Ray-2017-06-06/BiologicalAbundances -t ~/SummerSchoolMicrobiome/UsingRayMeta/TreeOfLife-Edges.tsv
+```
+
+Now, we look at the precomputed results.
+
+```
+Contig-name     Contig_length_in_kmers  Contig_mode_kmer_depth  Total_colored_kmer      LCA_taxon_id    LCA_name        LCA_rank        LCA_score       phylum  phylum_score    class   class_score     order   order_score     family  family_score       genus   genus_score     species species_score
+contig-31000024 322     14      287     1358    Lactococcus lactis      species 0.483870967742  Firmicutes      0.483870967742  Bacilli 0.483870967742  Lactobacillales 0.483870967742  Streptococcaceae        0.483870967742  Lactococcus
+        0.483870967742  Lactococcus lactis      0.483870967742
+contig-31000025 242     6       0       0       No name Unknown rank    0               0               0               0               0               0               0
+contig-31000026 148     2       4       1578    Lactobacillus   genus   1.0     Firmicutes      1.0     Bacilli 1.0     Lactobacillales 1.0     Lactobacillaceae        1.0     Lactobacillus   1.0     Lactobacillus zeae      0.5
+contig-31000027 146     6       127     1358    Lactococcus lactis      species 1.0     Firmicutes      1.0     Bacilli 1.0     Lactobacillales 1.0     Streptococcaceae        1.0     Lactococcus     1.0     Lactococcus lactis      1.0
+contig-31000020 353     11      16      unknown No name Unknown rank    0               -1              -1              -1              -1              -1              -1
+contig-31000021 225     7       0       0       No name Unknown rank    0               0               0               0               0               0               0
+contig-31000022 162     2       80      151534  Lactococcus phage bIL311        species 1.0             -1              -1      Caudovirales    1.0     Siphoviridae    1.0             -1      Lactococcus phage bIL311        1.0
+contig-31000023 165     5       0       0       No name Unknown rank    0               0               0               0               0               0               0
+contig-31000028 159     3       159     186826  Lactobacillales order   0.521869158879  Firmicutes      0.780934579439  Bacilli 0.521869158879  Lactobacillales 0.521869158879  Lactobacillaceae        0.36953271028   Lactobacillus   0.3
+38878504673     Clostridium butyricum   0.135514018692
+```
+
+In this file, we put all the beauty of Ray Meta. For each contig, we get the following information :
+
+* Contig-name
+* Contig_length_in_kmers  
+* Contig_mode_kmer_depth  - Mode coverage depth of the k-mers in the contig.
+* Total_colored_kmer      - Number of k-mers in the contig that have been colored by the reference database.
+* LCA_taxon_id            - Best hit taxonomical association NCBI taxID.
+* LCA_name                - Best hit taxonomical association taxa name.
+* LCA_rank                - Best hit taxonomical association; rank of the best hit.
+* LCA_score               - Best hit taxonomical association score
+
+The following colums indicate the best classification at each taxonomical rank and its score. A score > 0.20 indicate a high probability that the taxonomical association is good.
+
+* phylum  
+* phylum_score    
+* class   
+* class_score     
+* order   
+* order_score     
+* family  
+* family_score       
+* genus   
+* genus_score     
+* species species_score
+
+The score, also known as the pl-value, is computed using the following formula :
+
+###
+
+We can now bin contigs and compute the size of each bin that is associated to a species.
+
+
+
+####
+
+
+
+Analysis of laughing-nemesis results.
+
+Explanation of LCA.
+
+Working with the file to sort it.
+
+
+
 
