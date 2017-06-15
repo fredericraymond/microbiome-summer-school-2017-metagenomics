@@ -488,3 +488,6 @@ What to try it with more complex data? Repeat the same procedure with THIS file.
 data <- read.table("Sample_503619-Ray-2016-12-10_original-nemesis.tsv", header=1, row.names=1, sep="\t")
 data[1:5,]
 ```
+
+You could use this information to associate gene annotation with taxonomical origin. This is how I was able to compare the resistance genes in metagenomes to the E. coli pangenome.
+
