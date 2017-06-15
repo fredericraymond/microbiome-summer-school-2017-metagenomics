@@ -472,7 +472,19 @@ plot(density(data.select[which(data.select$species=="Lactococcus lactis"),"Conti
 
 We can also overlap the curve for the two species that we know to be present in this sample.
 
+```
+NEED FILE TO DO CODE
+```
 
+Finally, we may want generate a list of contigs that probably originate from SPECIES. We could with this list extract the contigs from the *Contigs.fasta* file in the assembly directory.
 
+```
+rownames(data.select[which(data.select$species==species),])
+```
 
+What to try it with more complex data? Repeat the same procedure with THIS file.
 
+```
+data <- read.table("Sample_503619-Ray-2016-12-10_original-nemesis.tsv", header=1, row.names=1, sep="\t")
+data[1:5,]
+```
