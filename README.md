@@ -489,5 +489,5 @@ data <- read.table("Sample_503619-Ray-2016-12-10_original-nemesis.tsv", header=1
 data[1:5,]
 ```
 
-You could use this information to associate gene annotation with taxonomical origin. This is how I was able to compare the resistance genes in metagenomes to the E. coli pangenome.
+Congratulation! You have completed the tutorial. Now, what cool science would you do with this information?
 
