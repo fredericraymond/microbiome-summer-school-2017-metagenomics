@@ -10,6 +10,7 @@ For this tutorial, you will need the following software :
 * Ray Platform (required to install Ray) : https://github.com/sebhtml/RayPlatform
 * Ray Meta Tools : https://github.com/fredericraymond/RayMetaTools
 * MPI : https://www.open-mpi.org/software/ompi/v2.1/
+* R : https://www.r-project.org/
 
 The tutorial will be performed on the following dataset :
 
@@ -18,6 +19,12 @@ TBD
 ## Introduction
 
 Ray Meta is one of the many softwares that allow the assembly of metagenomes. As explained in the plenary session, each assembly software has its advantages and inconveniences. The main advantage of Ray Meta is that it integrates assembly with taxonomical profiling. It also allow to identify the putative taxonomical origin of contigs. These are tools that are very useful when working with metagenomic data. The scalability of Ray makes it supercomputer friendly and thus useful to work on large metagenomic studies with samples that have hundreds of millions of reads. As a drawback, Ray Meta may output smaller assemblies that other softwares such as MegaHit or MetaSpades. During your metagenomic work, it is important to consider all the available tools in order to make the best of your data. In this tutorial, I will show how to use Ray Meta and interpret its output in order to better understand important concepts relating to assembly-based metagenomics.
+
+## Step 0 - Download data
+
+```
+wget xxx
+```
 
 ## Step 1 - Assembling a microbiome using Ray Meta
 
@@ -388,7 +395,8 @@ The following colums indicate the best classification at each taxonomical rank a
 * family_score       
 * genus   
 * genus_score     
-* species species_score
+* species
+* species_score
 
 The score, also known as the pl-value, is computed using the following formula :
 
@@ -421,23 +429,49 @@ How many families have been identified in our file ?
 summary(data$family)
 ```
 
-How many families have been identified in our file ?
+We select the lines for which species are identified with a score greater than 0.20.
 
 ```
-summary(data$family)
+data.select <- data[which(data$species_score>=0.2),]
+
+### List species that were detected and sort them based on the number of contigs
+
+sort(summary(droplevels(data.select$species)))
 ```
 
-We select the lines for which species are identified with a score greater than 0.2.
+We calculate the sum of the length of contigs identified as Lactococcus Lactis.
 
-####
+```
+sum(data.select[which(data.select$species=="Lactococcus lactis"),"Contig_length_in_kmers"])
+```
 
+We can generate a table to do that with all species that had at least one contig.
 
+```
+genome.size <- c()
+for(species in levels(droplevels(data.select$species))){
+  genome.size <- c(genome.size, sum(data.select[which(data.select$species==species),"Contig_length_in_kmers"]))
+}
+names(genome.size) <- levels(droplevels(data.select$species))
+sort(genome.size)
+```
 
-Analysis of laughing-nemesis results.
+We will look at the coverage distribution of contigs overall. This will allow to quality control contigs binning and better interpret results.
 
-Explanation of LCA.
+```
+summary(data[,2])
+plot(density(data[,2]))
+```
 
-Working with the file to sort it.
+Now, we look at a specific species.
+
+```
+summary(data.select[which(data.select$species=="Lactococcus lactis"),"Contig_mode_kmer_depth"])
+plot(density(data.select[which(data.select$species=="Lactococcus lactis"),"Contig_mode_kmer_depth"]))
+```
+
+We can also overlap the curve for the two species that we know to be present in this sample.
+
 
 
 
