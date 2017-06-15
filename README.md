@@ -11,6 +11,8 @@ For this tutorial, you will need the following software :
 * Ray Meta Tools : https://github.com/fredericraymond/RayMetaTools
 * MPI : https://www.open-mpi.org/software/ompi/v2.1/
 * R : https://www.r-project.org/
+* Laughing-nemesis
+* Python
 
 The tutorial will be performed on the following dataset :
 
@@ -34,27 +36,7 @@ For the purpose of this tutorial, we will use a rarefied dataset that will not p
 
 ### Assemble and profile sample
 
-The command to run the assembly and profiling using Ray Meta is as follow :
-
-
-```
-mpiexec -n 2 Ray \
- -o \
- Sample_RVH-2106-Ray-2017-06-18 \
- -k \
- 21 \
- -p \
- Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz \
- Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz \
- -search \
- genomes \
- -with-taxonomy \
- Genome-to-Taxon.tsv \
- TreeOfLife-Edges.tsv \
- Taxon-Names.tsv
-```
-
-Please go to the ~/SummerSchoolMicrobiome/UsingRayMeta/ folder and run the preceding command. 
+The command to run the assembly and profiling using Ray Meta is as follow. Please go to the ~/SummerSchoolMicrobiome/UsingRayMeta/ folder and run the preceding command. 
 
 
 ```
@@ -76,13 +58,13 @@ mpiexec -n 2 Ray \
  Taxon-Names.tsv
 ```
 
-This will take around 45 minutes, so we will continue the tutorial below. Now that it is running, We will examine this command line-by-line.
+This will take around 45 minutes, so we will continue the tutorial below. Now that it is running, we will examine this command line-by-line.
 
 ```
 mpiexec -n 2 Ray \
 ```
 
-Mpiexec is the paralellization software used by Ray. The "-n" allows to indicate how many processors should be used for the analysis. For this tutorial, we will be using 2 cores. In a real project, the number of processors will depend on the amount of sequence to be assembled and on the size of the profiling datasets (which we will explain soon). To assemble a single genome, we often use a value of 32 while for complex microbiomes we can use up to 128 and 256 processors.
+Mpiexec is the paralellization software used by Ray. The "-n" allows to indicate how many cores should be used for the analysis. For this tutorial, we will be using 2 cores. In a real project, the number of processors will depend on the amount of sequence to be assembled and on the size of the profiling datasets (which we will explain soon). To assemble a single genome, we often use a value of 32 while for complex microbiomes we can use up to 128 and 256 processors.
 
 ```
  -o \
@@ -105,7 +87,7 @@ The "-k" is the k-mer length used for the analysis. In a majority of cases a k-m
  Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz \
 ```
 
-The "-p" tells Ray to use paired-end reads. Therefore, we give it to files, one for read 1 and one for read to. Alternatively, "-s" can be used for single reads.
+The "-p" tells Ray to use paired-end reads. Therefore, we give it two files, one for read 1 and one for read 2. Alternatively, "-s" can be used for single reads.
 
 ```
  -search \
@@ -399,8 +381,7 @@ The following colums indicate the best classification at each taxonomical rank a
 * species_score
 
 The score, also known as the pl-value, is computed using the following formula :
-
-###
+Matches_in_contig^2 / (Contig_length_in_k-mers * Colored_k-mers)
 
 We can now bin contigs and compute the size of each bin that is associated to a species. We will work with R.
 
