@@ -278,19 +278,66 @@ ls
 
 The .tsv files provide the proportion of samples that could be identified as taxonomic units (in k-mers).
 
-Please take a few minutes to look at the .tsv files and try to understand what is happening with this assembly.
-
 <details> 
-  <summary>Q2: Is everything ok? </summary>
-   In the 0.Profile.TaxonomyRank=species.tsv, we can see that 35% of the sample is *Leuconostoc lactis* while the expected *C. difficile* is only 65% of the sample. The *E. coli* signal is background noise.
+  <summary>Q2: Take a few minutes to look at the .tsv files and try to understand what is happening with this assembly.</summary>
+   In *0.Profile.TaxonomyRank=species.tsv*, we can see that 35% of the sample is *Leuconostoc lactis* while the expected *C. difficile* is only 65% of the sample. The *E. coli* signal is background noise. Yep, this sample is not pure. It is a mixed culture.
 </details>
 <br>
 <br>
+To simplify the interpretation when working with mixed population, we can look at the taxa that are at more than 0.01% of a sample.In this example, it is not that useful, but as you can see it removes the background signal from *E. coli*.
 
-## Step 3 - Profiling results
+```
+ awk -F "\t" '$4>0.0001' 0.Profile.TaxonomyRank=species.tsv
 
-Yep, make a big table
+  #TaxonIdentifier        TaxonName       TaxonRank       TaxonProportion
+  1246    Leuconostoc lactis      species 0.352636
+  1496    Peptoclostridium difficile      species 0.647357
+```
 
-## Step 4 - Contig identification
+Now that we have troubleshooted our sample, we will use an assembly of the same sample with more reads to look at a proper assembly of these genomes.
 
-Bin it baby
+Now, we will move to another directory. In this second assembly, take a look at the same files we have consulted in this section to answer the following questions :
+
+```
+cd ~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-18
+```
+
+How many reads did we use?
+What is the assembly size? Broken in how many contigs?
+What is is the size of the graph? How does it relate with the size of the assembly and the actual size of a *C. difficile* genome?
+How is the species proportion compared to the lower sequencing depth analysis?
+
+## Step 3 - Contig binning
+
+From this complete assembly, we will bin the contigs to separate the *Leuconostoc* from the *Clostridium*.
+
+Some data on contig identification is already available in the files, although we will need to do some processing to make this information more valuable.
+
+The first file to look into is in the *BiologicalAbundances/genomes/ContigIdentification.tsv*.
+
+```
+more BiologicalAbundances/genomes/ContigIdentification.tsv
+
+#Contig name    K-mer length    Contig length in k-mers Contig strand   Category        Sequence number Sequence name   Sequence length in k-mers       Matches in contig       Contig length ratio     Sequence length ratio
+contig-573000003        21      235     F       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     142     0.604255        0.160998
+contig-743000002        21      207     F       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     157     0.758454        0.178005
+contig-494000000        21      183     R       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     82      0.448087        0.0929705
+contig-1276000002       21      346     R       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     224     0.647399        0.253968
+contig-778000001        21      124     F       Leuconostoc_lactis_KCTC_3528_uid68683   2       gi|339303866|ref|NZ_AEOR01000003.1| Leuconostoc lactis KCTC 3528        1060    119     0.959677        0.112264
+contig-1972000000       21      146     F       Leuconostoc_lactis_KCTC_3528_uid68683   2       gi|339303866|ref|NZ_AEOR01000003.1| Leuconostoc lactis KCTC 3528        1060    106     0.726027        0.1
+contig-1065000002       21      123     R       Leuconostoc_lactis_KCTC_3528_uid68683   2       gi|339303866|ref|NZ_AEOR01000003.1| Leuconostoc lactis KCTC 3528        1060    123     1       0.116038
+contig-327000001        21      319     R       Leuconostoc_lactis_KCTC_3528_uid68683   4       gi|339303868|ref|NZ_AEOR01000005.1| Leuconostoc lactis KCTC 3528        654     319     1       0.487768
+contig-553000000        21      732     R       Leuconostoc_lactis_KCTC_3528_uid68683   4       gi|339303868|ref|NZ_AEOR01000005.1| Leuconostoc lactis KCTC 3528        654     169     0.230874        0.25841
+```
+
+For each contig, we get several information, notably the lenght of the contig, the reference sequence matching the contig and the proportion of the contig matched by the reference sequence. The problem (or the advantage?) with this file is that it includes several entry for each contig, providing its similarity with several sequences from the reference database.  For a small community like this one, we could analyse this file. However, for more complex metagenome, we need help!
+
+Open a new terminal window and enter the following commands to download the laughing-nemesis last common ancestor tool for Ray Meta.
+
+```
+cd ~
+mkdir software
+cd software
+git clone https://github.com/plpla/laughing-nemesis.git
+```
+
