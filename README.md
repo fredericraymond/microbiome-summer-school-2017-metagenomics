@@ -1,4 +1,4 @@
-# microbiome-summer-school-2017-metagenomics
+# Microbiome Summer School 2017 - Metagenomics using Ray Meta
 
 This is the tutorial for the assembly-based metagenomic course of the 2017 Microbiome Summer School.
 
@@ -8,10 +8,9 @@ For this tutorial, you will need the following software :
 
 * Ray Meta : https://github.com/zorino/ray
 * Ray Platform (required to install Ray) : https://github.com/sebhtml/RayPlatform
-* Ray Meta Tools : https://github.com/fredericraymond/RayMetaTools
 * MPI : https://www.open-mpi.org/software/ompi/v2.1/
 * R : https://www.r-project.org/
-* Laughing-nemesis
+* Laughing-nemesis : https://github.com/plpla/laughing-nemesis.git
 * Python
 
 The tutorial will be performed on the following dataset :
@@ -20,15 +19,17 @@ TBD
 
 ## Introduction
 
-Ray Meta is one of the many softwares that allow the assembly of metagenomes. As explained in the plenary session, each assembly software has its advantages and inconveniences. The main advantage of Ray Meta is that it integrates assembly with taxonomical profiling. It also allow to identify the putative taxonomical origin of contigs. These are tools that are very useful when working with metagenomic data. The scalability of Ray makes it supercomputer friendly and thus useful to work on large metagenomic studies with samples that have hundreds of millions of reads. As a drawback, Ray Meta may output smaller assemblies that other softwares such as MegaHit or MetaSpades. During your metagenomic work, it is important to consider all the available tools in order to make the best of your data. In this tutorial, I will show how to use Ray Meta and interpret its output in order to better understand important concepts relating to assembly-based metagenomics.
+Ray Meta is one of the many softwares that allow the assembly of metagenomes. As explained in the plenary session, each assembly software has its advantages and inconveniences. The main advantage of Ray Meta is that it integrates assembly with taxonomical profiling. It also allows to identify the putative taxonomical origin of contigs. These are tools that are very useful when working with metagenomic data. The scalability of Ray makes it supercomputer friendly and thus useful to work on large metagenomic studies with samples that have hundreds of millions of reads. As a drawback, current versions Ray Meta may output smaller assemblies that other softwares such as MegaHit or MetaSpades. During your metagenomic work, it is important to consider all the available tools in order to make the best of your data. In this tutorial, I will show how to use Ray Meta and interpret its output in order to better understand important concepts relating to assembly-based metagenomics.
 
 ## Step 0 - Download data
+
+For this tutorial, we will use a syntetic dataset inspired by a genome we once sequenced for a collaborator. So, in theory, we are sequencing a genome from *Clostridium difficile*...
 
 ```
 wget xxx
 ```
 
-## Step 1 - Assembling a microbiome using Ray Meta
+## Step 1 - Metagenome assembly using Ray Meta
 
 In the first part of this tutorial, we will assemble a mixed bacterial culture and evaluate the quality of the assembly.
 
@@ -36,20 +37,20 @@ For the purpose of this tutorial, we will use a rarefied dataset that will not p
 
 ### Assemble and profile sample
 
-The command to run the assembly and profiling using Ray Meta is as follow. Please go to the ~/SummerSchoolMicrobiome/UsingRayMeta/ folder and run the preceding command. 
+The command to run the assembly and profiling using Ray Meta is as follow. Please go to the ~/UsingRayMeta/ folder and run the preceding command. 
 
 
 ```
-cd ~/SummerSchoolMicrobiome/UsingRayMeta/
+cd ~/UsingRayMeta/
 
 mpiexec -n 2 Ray \
  -o \
- Sample_RVH-2106-Ray-2017-06-18 \
+ Sample-Small \
  -k \
- 21 \
+ 31 \
  -p \
- Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz \
- Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz \
+ reads/MetaSim_Cdiff8_Ecoli2_50000_fir.fastq \
+ reads/MetaSim_Cdiff8_Ecoli2_50000_sec.fastq \
  -search \
  genomes \
  -with-taxonomy \
@@ -64,11 +65,11 @@ This will take around 45 minutes, so we will continue the tutorial below. Now th
 mpiexec -n 2 Ray \
 ```
 
-Mpiexec is the paralellization software used by Ray. The "-n" allows to indicate how many cores should be used for the analysis. For this tutorial, we will be using 2 cores. In a real project, the number of processors will depend on the amount of sequence to be assembled and on the size of the profiling datasets (which we will explain soon). To assemble a single genome, we often use a value of 32 while for complex microbiomes we can use up to 128 and 256 processors.
+Mpiexec is the paralellization software used by Ray. The "-n" allows to indicate how many cores should be used for the analysis. For this tutorial, we will be using 2 cores. In a real project, the number of processors will depend on the amount of sequence to be assembled and on the size of the profiling datasets (which we will explain soon). To assemble a single genome, we often use a value of 32, while for complex microbiomes we can use up to 128 or 256 processors.
 
 ```
  -o \
- Sample_RVH-2106-Ray-2017-06-06 \
+ Sample-Small \
 ```
 
 The "-o" is the output directory.
@@ -79,15 +80,15 @@ The "-o" is the output directory.
  31 \
 ```
  
-The "-k" is the k-mer length used for the analysis. In a majority of cases a k-mer length of 31 will provide optimal assembly. However, depending on the sequencing depth and on the complexity of the organism or community, a different value for k could be optimal. In doubt, it can be useful to compare assemblies using different values of k.
+The "-k" is the k-mer length used for the analysis. In a majority of cases a k-mer length of 31 will provide optimal assembly. However, depending on the sequencing depth and on the complexity of the organism or community, a different value for k could be optimal. In doubt, it can be useful to compare assemblies using different values of k. In our lab, it is standard procedure to test 21, 31, 51 and 71 as values of k.
  
 ```
  -p \
- Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz \
- Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz \
+ reads/MetaSim_Cdiff8_Ecoli2_50000_fir.fastq \
+ reads/MetaSim_Cdiff8_Ecoli2_50000_sec.fastq \
 ```
 
-The "-p" tells Ray to use paired-end reads. Therefore, we give it two files, one for read 1 and one for read 2. Alternatively, "-s" can be used for single reads.
+The "-p" tells Ray to use paired-end reads. Therefore, we give it two files, one for read 1 and one for read 2. Alternatively, "-s" can be used for single reads. Several entries of -p or -s can be added to the arguments
 
 ```
  -search \
@@ -100,7 +101,7 @@ The "-search" function allows to quantify the k-mer content based on a reference
 * Escherichia_coli_K_12_substr__DH10B.fasta
 * Leuconostoc_lactis_KCTC_3528_uid68683.fasta
 
-In a real analysis, this directory can contain thousands of bacterial genomes. Several directories can be given to the software by repeating the "-search" argument. For example, if working on the human microbiome, the following sequence file could be included in addition to bacterial genomes : "-search humangenome". This is important as k-mers from the host can sometimes cause false positive signals for certain bacteria.
+In a real analysis, this directory can contain thousands of bacterial genomes. Several directories can be given to the software by repeating the "-search" argument. For example, if working on the human microbiome, the following sequence file could be included in addition to bacterial genomes (could be : "-search GRCh38"). This is important as k-mers from the host can sometimes cause false positive signals for certain bacteria.
 
 ```
  -with-taxonomy \
@@ -108,9 +109,10 @@ In a real analysis, this directory can contain thousands of bacterial genomes. S
  TreeOfLife-Edges.tsv \
  Taxon-Names.tsv
 ```
+
 This final argument tells Ray which taxonomy to use.
 
-* *Genome-to-Taxon.tsv* : makes the link between genome sequences and their taxonomical classification. For this tutorial, we use a simplified version for the Genome-to-Taxon.tsv file since the complete version can be several Gb. 
+* *Genome-to-Taxon.tsv* : Makes the link between genome sequences and their taxonomical classification. For this tutorial, we use a simplified version of the Genome-to-Taxon.tsv file, since the complete version can be several Gb. 
 * *TreeOfLife-Edges.tsv* : Allows to reconstitute the taxonomical tree.
 * *Taxon-Names.tsv* : Gives the names of the nodes of the taxonomical tree (the taxa names).
 
@@ -122,40 +124,41 @@ When adding new genomes to the taxonomy, one must make sure to include the match
 How is our assembly doing? To see at which step the assembly is currently, we can consult the file *ElapsedTime.txt*.
 
 ```
-cd ~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-18
+cd ~/UsingRayMeta/Sample-Small
 more ElapsedTime.txt
 ```
 
-Precomputed results for the assembly of the sample is available in the following directory :  *~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-06*.
+Precomputed results for the assembly of this sample (but with a lot more reads!) is available in the following directory : *~/UsingRayMeta/Sample-Big*.
 
-We will look at the final version of the precomputed assembly. Note that this assembly was done using 4 processors, so it took approximately half the time of our current assembly.
+We will look at the final version of the precomputed assembly. Note that this assembly was done using 48 processors, so it took only 20 minutes to run.
 
 ```
-cd ~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-06
+cd ~/UsingRayMeta/Sample-Big
 more ElapsedTime.txt
 
-  Network testing	2017-06-06T15:17:42	0 seconds	0 seconds
-  Counting sequences to assemble	2017-06-06T15:17:44	2 seconds	2 seconds
-  Sequence loading	2017-06-06T15:17:52	8 seconds	10 seconds
-  K-mer counting	2017-06-06T15:18:18	26 seconds	36 seconds
-  Coverage distribution analysis	2017-06-06T15:18:21	3 seconds	39 seconds
-  Graph construction	2017-06-06T15:18:53	32 seconds	1 minutes, 11 seconds
-  Null edge purging	2017-06-06T15:19:35	42 seconds	1 minutes, 53 seconds
-  Selection of optimal read markers	2017-06-06T15:20:20	45 seconds	2 minutes, 38 seconds
-  Detection of assembly seeds	2017-06-06T15:21:57	1 minutes, 37 seconds	4 minutes, 15 seconds
-  Estimation of outer distances for paired reads	2017-06-06T15:22:02	5 seconds	4 minutes, 20 seconds
-  Bidirectional extension of seeds	2017-06-06T15:23:20	1 minutes, 18 seconds	5 minutes, 38 seconds
-  Merging of redundant paths	2017-06-06T15:24:10	50 seconds	6 minutes, 28 seconds
-  Generation of contigs	2017-06-06T15:24:11	1 seconds	6 minutes, 29 seconds
-  Scaffolding of contigs	2017-06-06T15:25:19	1 minutes, 8 seconds	7 minutes, 37 seconds
-  Counting sequences to search	2017-06-06T15:25:19	0 seconds	7 minutes, 37 seconds
-  Graph coloring	2017-06-06T15:25:28	9 seconds	7 minutes, 46 seconds
-  Counting contig biological abundances	2017-06-06T15:25:31	3 seconds	7 minutes, 49 seconds
-  Counting sequence biological abundances	2017-06-06T15:25:39	8 seconds	7 minutes, 57 seconds
-  Loading taxons	2017-06-06T15:25:42	3 seconds	8 minutes, 0 seconds
-  Loading tree	2017-06-06T15:25:51	9 seconds	8 minutes, 9 seconds
-  Processing gene ontologies	2017-06-06T15:25:57	6 seconds	8 minutes, 15 seconds
-  Computing neighbourhoods	2017-06-06T15:25:57	0 seconds	8 minutes, 15 seconds
+  #Step	Date	Elapsed time	Since Beginning
+  Network testing	2017-06-15T14:47:08	1 seconds	1 seconds
+  Counting sequences to assemble	2017-06-15T14:47:09	1 seconds	2 seconds
+  Sequence loading	2017-06-15T14:47:16	7 seconds	9 seconds
+  K-mer counting	2017-06-15T14:47:36	20 seconds	29 seconds
+  Coverage distribution analysis	2017-06-15T14:47:43	7 seconds	36 seconds
+  Graph construction	2017-06-15T14:48:09	26 seconds	1 minutes, 2 seconds
+  Null edge purging	2017-06-15T14:48:49	40 seconds	1 minutes, 42 seconds
+  Selection of optimal read markers	2017-06-15T14:49:24	35 seconds	2 minutes, 17 seconds
+  Detection of assembly seeds	2017-06-15T14:51:39	2 minutes, 15 seconds	4 minutes, 32 seconds
+  Estimation of outer distances for paired reads	2017-06-15T14:51:52	13 seconds	4 minutes, 45 seconds
+  Bidirectional extension of seeds	2017-06-15T14:55:36	3 minutes, 44 seconds	8 minutes, 29 seconds
+  Merging of redundant paths	2017-06-15T15:03:44	8 minutes, 8 seconds	16 minutes, 37 seconds
+  Generation of contigs	2017-06-15T15:03:53	9 seconds	16 minutes, 46 seconds
+  Scaffolding of contigs	2017-06-15T15:05:33	1 minutes, 40 seconds	18 minutes, 26 seconds
+  Counting sequences to search	2017-06-15T15:05:34	1 seconds	18 minutes, 27 seconds
+  Graph coloring	2017-06-15T15:06:01	27 seconds	18 minutes, 54 seconds
+  Counting contig biological abundances	2017-06-15T15:06:13	12 seconds	19 minutes, 6 seconds
+  Counting sequence biological abundances	2017-06-15T15:06:55	42 seconds	19 minutes, 48 seconds
+  Loading taxons	2017-06-15T15:07:02	7 seconds	19 minutes, 55 seconds
+  Loading tree	2017-06-15T15:07:22	20 seconds	20 minutes, 15 seconds
+  Processing gene ontologies	2017-06-15T15:07:34	12 seconds	20 minutes, 27 seconds
+  Computing neighbourhoods	2017-06-15T15:07:34	0 seconds	20 minutes, 27 seconds
 
 ```
 
@@ -165,33 +168,34 @@ Now, is this assembly any good? To investigate, we will look at the *OutputNumbe
 more OutputNumbers.txt
 
 Contigs >= 100 nt
- Number: 9649
- Total length: 1862984
- Average: 193
- N50: 196
- Median: 148
- Largest: 6958
+ Number: 13633
+ Total length: 8137962
+ Average: 596
+ N50: 10391
+ Median: 234
+ Largest: 265237
 Contigs >= 500 nt
- Number: 305
- Total length: 253235
- Average: 830
- N50: 764
- Median: 644
- Largest: 6958
+ Number: 1531
+ Total length: 5224457
+ Average: 3412
+ N50: 85464
+ Median: 632
+ Largest: 265237
 Scaffolds >= 100 nt
- Number: 9557
- Total length: 1880491
- Average: 196
- N50: 197
- Median: 147
- Largest: 6958
+ Number: 13619
+ Total length: 8139296
+ Average: 597
+ N50: 15499
+ Median: 234
+ Largest: 265237
 Scaffolds >= 500 nt
- Number: 251
- Total length: 288026
- Average: 1147
- N50: 1449
- Median: 707
- Largest: 6958
+ Number: 1517
+ Total length: 5225791
+ Average: 3444
+ N50: 109710
+ Median: 631
+ Largest: 265237
+
 ```
 
 
@@ -199,8 +203,8 @@ How do you interpret these statistics?
 
 
 <details> 
-  <summary>Q1: What can you say about his assembly? Is it good? Do we have good coverage of the expected genome? </summary>
-   The total length of this assembly is low, less than 2 million including all contigs. When looking only at contigs longer than 500 nucleotide, the assembly is only 250 kb.  The number of contigs is very high for the length of the assembly. Here, we were assembling a Clostridium difficile genome. Thus, we were expecting a genome length around 4 Mb. To troubleshoot these results, we will look at the sequencing statistics.
+  <summary>Q1: What can you say about his assembly? Is it good? Do we have good coverage of the expected C. difficile genome? </summary>
+   The total length of this assembly is higher than what is expecter for a C. difficile genome. When looking only at contigs longer than 500 nucleotide, the assembly is 5,224,457 nt.  The number of contigs is very high for the length of the assembly. Here, we were assembling a Clostridium difficile genome. Thus, we were expecting a genome length around 4 Mb. To troubleshoot these results, we will look at the sequencing statistics.
 </details>
 <br>
 <br>
@@ -213,44 +217,45 @@ more NumberOfSequences.txt
   Files: 2
 
 FileNumber: 0
-	FilePath: Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R1_001.fastq.gz
- 	NumberOfSequences: 1341231
+	FilePath: MetaSim_Cdiff8_Ecoli2_1000000_fir.fastq
+ 	NumberOfSequences: 1000000
 	FirstSequence: 0
-	LastSequence: 1341230
+	LastSequence: 999999
 
 FileNumber: 1
-	FilePath: Sample_RVH-2106/RVH-2106_GTAGAGGA-TAGATCGC_L003_R2_001.fastq.gz
- 	NumberOfSequences: 1341231
-	FirstSequence: 1341231
-	LastSequence: 2682461
+	FilePath: MetaSim_Cdiff8_Ecoli2_1000000_sec.fastq
+ 	NumberOfSequences: 1000000
+	FirstSequence: 1000000
+	LastSequence: 1999999
 
 
 Summary
-	NumberOfSequences: 2682462
+	NumberOfSequences: 2000000
 	FirstSequence: 0
-	LastSequence: 2682461
+	LastSequence: 1999999
 
 ```
 
-The number of reads in the analysis is 2,682,462. The number of nucleotides sequenced is 37 * 2,682,462 = 270,928,662. If we divide it by the expected genome length, we get 270,928,662 / 4e6 = 68X coverage, which should be sufficient for analysis. However, it is obviously not the case.
+The number of reads in the analysis is 2,000,000. The number of nucleotides sequenced is 101 * 2,000,000 = 202,000,000. If we divide it by the expected genome length, we get 202,000,000 / 4e6 = 50X coverage, which is indeed sufficient for assembly.
 
 Further troubleshooting can be done by looking at the *CoverageDistributionAnalysis.txt* file 
 
 ```
 more CoverageDistributionAnalysis.txt
 
-k-mer length:   21
-Number of k-mers in the distributed de Bruijn graph: 10526772
-Lowest coverage observed:       2
-MinimumCoverage:        2
-PeakCoverage:   2
-RepeatCoverage: 2
-Number of k-mers with at least MinimumCoverage: 10526772 k-mers
-Percentage of vertices with coverage 2: 12.1506 %
-DistributionFile: Sample_RVH-2106-Ray-2017-06-06/CoverageDistribution.txt
+k-mer length:	31
+Number of k-mers in the distributed de Bruijn graph: 18616594
+Lowest coverage observed:	2
+MinimumCoverage:	10
+PeakCoverage:	17
+RepeatCoverage:	24
+Number of k-mers with at least MinimumCoverage:	8459298 k-mers
+Percentage of vertices with coverage 2:	15.5668 %
+DistributionFile: Sample_SS-Big/CoverageDistribution.txt
+
 ```
 
-The information of interest is the number of k-mers with at least MinimumCoverage: 10526772 k-mers. This estimates the size of the de bruijn graph that attains the minimum coverage, in this case a depth of 2. If we divide this number by 2 (to account for the two strands of DNA), we can estimate the actual size of the genome or metagenome. In this case, the genome size would be approximately 5 Mb, which is slightly bigger than a C. difficile genome.
+The information of interest is the number of k-mers with at least MinimumCoverage: 8,459,298 k-mers. This estimates the size of the de bruijn graph that attains the minimum coverage, in this case a depth of 10. If we divide this number by 2 (to account for the two strands of DNA), we can estimate the actual size of the genome or metagenome. In this case, the genome size would be approximately 4,2 Mb, which is what we would expect as a genome size. However, the number of k-mers in the graph is almost twice that size : 18,616,594. This may indicate something is not behaving as expected...
 
 We will look into to profiling results of Ray to investigate the taxonomical content of the sample. This information is found in the BiologicalAbundance folder.
 
@@ -258,10 +263,10 @@ We will look into to profiling results of Ray to investigate the taxonomical con
 cd BiologicalAbundances
 ls
 
-0.Profile.genomes.tsv              0.Profile.TaxonomyRank=no rank.tsv  0.Profile.TaxonomyRank=superkingdom.tsv  _Frequencies
-0.Profile.TaxonomyRank=class.tsv   0.Profile.TaxonomyRank=order.tsv    _Coloring                                _GeneOntology
-0.Profile.TaxonomyRank=family.tsv  0.Profile.TaxonomyRank=phylum.tsv   _DeNovoAssembly                          genomes
-0.Profile.TaxonomyRank=genus.tsv   0.Profile.TaxonomyRank=species.tsv  _Directories.tsv                         _Taxonomy
+0.Profile.genomes.tsv              0.Profile.TaxonomyRank=no rank.tsv  0.Profile.TaxonomyRank=superkingdom.tsv  _Directories.tsv  _Taxonomy
+0.Profile.TaxonomyRank=class.tsv   0.Profile.TaxonomyRank=order.tsv    20170616_Nemesis.tsv                     _Frequencies
+0.Profile.TaxonomyRank=family.tsv  0.Profile.TaxonomyRank=phylum.tsv   _Coloring                                _GeneOntology
+0.Profile.TaxonomyRank=genus.tsv   0.Profile.TaxonomyRank=species.tsv  _DeNovoAssembly                          genomes
 
 ```
 
@@ -269,60 +274,76 @@ The .tsv files provide the proportion of samples that could be identified as tax
 
 <details> 
   <summary>Q2: Take a few minutes to look at the .tsv files and try to understand what is happening with this assembly.</summary>
-   In *0.Profile.TaxonomyRank=species.tsv*, we can see that 35% of the sample is *Leuconostoc lactis* while the expected *C. difficile* is only 65% of the sample. The *E. coli* signal is background noise. Yep, this sample is not pure. It is a mixed culture.
+   In *0.Profile.TaxonomyRank=species.tsv*, we can see that 20% of the sample is *Leuconostoc lactis* while the expected *C. difficile* is only 20% of the sample. The *E. coli* signal is background noise (< 10e-6). Yep, this sample is not pure. It is a mixed culture.
 </details>
 <br>
 <br>
-To simplify the interpretation when working with mixed population, we can look at the taxa that are at more than 0.01% of a sample.In this example, it is not that useful, but as you can see it removes the background signal from *E. coli*.
+To simplify the interpretation when working with mixed population, we can look at the taxa that are at more than 0.01% of a sample. In this example, it is not that useful, but as you can see it removes the background signal from *E. coli*.
 
 ```
  awk -F "\t" '$4>0.0001' 0.Profile.TaxonomyRank=species.tsv
 
   #TaxonIdentifier        TaxonName       TaxonRank       TaxonProportion
-  1246    Leuconostoc lactis      species 0.352636
-  1496    Peptoclostridium difficile      species 0.647357
-```
-
-Now that we have troubleshooted our sample, we will use an assembly of the same sample with more reads to look at a proper assembly of these genomes.
-
-Now, we will move to another directory. In this second assembly, take a look at the same files we have consulted in this section to answer the following questions :
+  562     Escherichia coli        species 0.209279
+  1496    Peptoclostridium difficile      species 0.79072
 
 ```
-cd ~/SummerSchoolMicrobiome/UsingRayMeta/Sample_RVH-2106-Ray-2017-06-18
+
+Now, we will move to another directory, with more complex metagenomic sample. In this second assembly, take a look at the same files we have consulted in this section to answer the following questions :
+
+```
+cd ~/UsingRayMeta/Sample_P4J7-Assembly
 ```
 
 How many reads did we use?
 What is the assembly size? Broken in how many contigs?
-What is is the size of the graph? How does it relate with the size of the assembly and the actual size of a *C. difficile* genome?
+What is is the size of the graph? How does it relate with the size of the assembly?
 How is the species proportion compared to the lower sequencing depth analysis?
 
 ## Step 3 - Contig binning
 
-From this complete assembly, we will bin the contigs to separate the *Leuconostoc* from the *Clostridium*.
+From this complete assembly, we will bin the contigs to separate the *Escherichia* from the *Clostridium*.
 
 Some data on contig identification is already available in the files, although we will need to do some processing to make this information more valuable.
 
 The first file to look into is in the *BiologicalAbundances/genomes/ContigIdentification.tsv*.
 
 ```
+cd ~/UsingRayMeta/Sample-Big
+
 more BiologicalAbundances/genomes/ContigIdentification.tsv
 
-#Contig name    K-mer length    Contig length in k-mers Contig strand   Category        Sequence number Sequence name   Sequence length in k-mers       Matches in contig       Contig length ratio     Sequence length ratio
-contig-573000003        21      235     F       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     142     0.604255        0.160998
-contig-743000002        21      207     F       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     157     0.758454        0.178005
-contig-494000000        21      183     R       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     82      0.448087        0.0929705
-contig-1276000002       21      346     R       Leuconostoc_lactis_KCTC_3528_uid68683   0       gi|339303864|ref|NZ_AEOR01000001.1| Leuconostoc lactis KCTC 3528        882     224     0.647399        0.253968
-contig-778000001        21      124     F       Leuconostoc_lactis_KCTC_3528_uid68683   2       gi|339303866|ref|NZ_AEOR01000003.1| Leuconostoc lactis KCTC 3528        1060    119     0.959677        0.112264
-contig-1972000000       21      146     F       Leuconostoc_lactis_KCTC_3528_uid68683   2       gi|339303866|ref|NZ_AEOR01000003.1| Leuconostoc lactis KCTC 3528        1060    106     0.726027        0.1
-contig-1065000002       21      123     R       Leuconostoc_lactis_KCTC_3528_uid68683   2       gi|339303866|ref|NZ_AEOR01000003.1| Leuconostoc lactis KCTC 3528        1060    123     1       0.116038
-contig-327000001        21      319     R       Leuconostoc_lactis_KCTC_3528_uid68683   4       gi|339303868|ref|NZ_AEOR01000005.1| Leuconostoc lactis KCTC 3528        654     319     1       0.487768
-contig-553000000        21      732     R       Leuconostoc_lactis_KCTC_3528_uid68683   4       gi|339303868|ref|NZ_AEOR01000005.1| Leuconostoc lactis KCTC 3528        654     169     0.230874        0.25841
+#Contig name	K-mer length	Contig length in k-mers	Contig strand	Category	Sequence number	Sequence name	Sequence length in k-mers	Matches in contig	Contig length ratio	Sequence length ratio
+contig-0	31	37550	F	Clostridium_difficile_630	1	gi|126697566|ref|NC_009089.1| Clostridium difficile 630, complet	4290222	103	0.00274301	2.40E-05
+contig-0	31	37550	R	Clostridium_difficile_630	1	gi|126697566|ref|NC_009089.1| Clostridium difficile 630, complet	4290222	37401	0.996032	0.00871773
+contig-1	31	1601	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	1574	0.983136	0.000335886
+contig-1	31	1601	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	27	0.0168645	5.76E-06
+contig-10	31	1401	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	1401	1	0.000298969
+contig-1000000	31	82506	F	Clostridium_difficile_630	1	gi|126697566|ref|NC_009089.1| Clostridium difficile 630, complet	4290222	82447	0.999285	0.0192174
+contig-10000000	31	717	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	717	1	0.000153005
+contig-100000000	31	276	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	276	1	5.89E-05
+contig-100000001	31	234	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	234	1	4.99E-05
+contig-100000002	31	254	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	254	1	5.42E-05
+contig-100000003	31	256	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	256	1	5.46E-05
+contig-100000004	31	265	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	265	1	5.66E-05
+contig-100000005	31	248	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	248	1	5.29E-05
+contig-100000006	31	273	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	273	1	5.83E-05
+contig-100000007	31	267	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	267	1	5.70E-05
+contig-100000008	31	261	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	261	1	5.57E-05
+contig-100000009	31	269	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	269	1	5.74E-05
+contig-10000001	31	687	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	687	1	0.000146604
+contig-100000010	31	239	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	239	1	5.10E-05
+contig-100000011	31	259	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	259	1	5.53E-05
+contig-100000012	31	1737	R	Leuconostoc_lactis_KCTC_3528_uid68683	1149	gi|339305013|ref|NZ_AEOR01001150.1| Leuconostoc lactis KCTC 3528	2075	16	0.00921128	0.00771084
+contig-100000012	31	1737	F	Clostridium_difficile_630	1	gi|126697566|ref|NC_009089.1| Clostridium difficile 630, complet	4290222	35	0.0201497	8.16E-06
+contig-100000012	31	1737	F	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	1620	0.932642	0.000345703
+contig-100000012	31	1737	R	Escherichia_coli_K_12_substr__DH10B	0	gi|170079663|ref|NC_010473.1| Escherichia coli str. K-12 substr.	4686107	117	0.0673575	2.50E-05
+
 ```
 
-For each contig, we get several information, notably the lenght of the contig, the reference sequence matching the contig and the proportion of the contig matched by the reference sequence. The problem (or the advantage?) with this file is that it includes several entry for each contig, providing its similarity with several sequences from the reference database.  For a small community like this one, we could analyse this file. However, for more complex metagenome, we need help!
+For each contig, we get several information, notably the lenght of the contig, the reference sequence matching the contig and the proportion of the contig matched by the reference sequence. The problem (or the advantage?) with this file is that it includes several entry for each contig (see contig-100000012), providing its similarity with several sequences from the reference database.  For a small community like this one, we could analyse this file. However, for more complex metagenome, we need help!
 
-
-We will not be running the following steps since it take a while. It has already been computed and available in the directory. 
+We will not be running the following steps since it take some time. It has already been computed and available in the directory. 
 
 Enter the following commands to download the laughing-nemesis last common ancestor tool for Ray Meta.
 
@@ -342,19 +363,29 @@ python ~/software/laughing-nemesis/FindLastCommonAncester.py lca -d ~/SummerScho
 Now, we look at the precomputed results.
 
 ```
-Contig-name     Contig_length_in_kmers  Contig_mode_kmer_depth  Total_colored_kmer      LCA_taxon_id    LCA_name        LCA_rank        LCA_score       phylum  phylum_score    class   class_score     order   order_score     family  family_score       genus   genus_score     species species_score
-contig-31000024 322     14      287     1358    Lactococcus lactis      species 0.483870967742  Firmicutes      0.483870967742  Bacilli 0.483870967742  Lactobacillales 0.483870967742  Streptococcaceae        0.483870967742  Lactococcus        0.483870967742  Lactococcus lactis      0.483870967742
-contig-31000025 242     6       0       0       No name Unknown rank    0               0               0               0               0               0               0
-contig-31000026 148     2       4       1578    Lactobacillus   genus   1.0     Firmicutes      1.0     Bacilli 1.0     Lactobacillales 1.0     Lactobacillaceae        1.0     Lactobacillus 1.0     Lactobacillus zeae      0.5
-contig-31000027 146     6       127     1358    Lactococcus lactis      species 1.0     Firmicutes      1.0     Bacilli 1.0     Lactobacillales 1.0     Streptococcaceae        1.0     Lactococcus     1.0     Lactococcus lactis      1.0
-contig-31000020 353     11      16      unknown No name Unknown rank    0               -1              -1              -1              -1              -1              -1
-contig-31000021 225     7       0       0       No name Unknown rank    0               0               0               0               0               0               0
-contig-31000022 162     2       80      151534  Lactococcus phage bIL311        species 1.0             -1              -1      Caudovirales    1.0     Siphoviridae    1.0             -1      Lactococcus phage bIL311        1.0
-contig-31000023 165     5       0       0       No name Unknown rank    0               0               0               0               0               0               0
-contig-31000028 159     3       159     186826  Lactobacillales order   0.521869158879  Firmicutes      0.780934579439  Bacilli 0.521869158879  Lactobacillales 0.521869158879  Lactobacillaceae        0.36953271028   Lactobacillus   0.338878504673     Clostridium butyricum   0.135514018692
+more BiologicalAbundances/20170616_Nemesis.tsv
+
+Contig-name	Contig_length_in_kmers	Contig_mode_kmer_depth	Total_colored_kmer	LCA_taxon_id	LCA_name	LCA_rank	LCA_score	phylum	phylum_score	class	class_score	order	order_score	family	family_score	genus	genus_score	species	species_score
+contig-187000039	149	3	149	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-293000047	95	2	95	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-293000046	106	5	106	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-203000019	138	2	138	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-203000018	129	5	129	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-280000038	101	5	101	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-228000026	122	2	122	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-276000038	103	4	103	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-199000039	133	2	133	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-280000032	99	3	99	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-280000035	97	2	97	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-199000038	178	8	178	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-247000024	105	2	105	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-247000025	98	4	98	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-247000026	113	6	113	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+contig-247000027	118	4	118	562	Escherichia coli	species	1	Proteobacteria	1	Gammaproteobacteria	1	Enterobacteriales	1	Enterobacteriaceae	1	Escherichia	1	Escherichia coli	1
+
 ```
 
-In this file, we put all the beauty of Ray Meta. For each contig, we get the following information :
+In this file, we gather all the beauty of Ray Meta. For each contig, we get the following information :
 
 * Contig-name
 * Contig_length_in_kmers  
@@ -362,10 +393,10 @@ In this file, we put all the beauty of Ray Meta. For each contig, we get the fol
 * Total_colored_kmer      - Number of k-mers in the contig that have been colored by the reference database.
 * LCA_taxon_id            - Best hit taxonomical association NCBI taxID.
 * LCA_name                - Best hit taxonomical association taxa name.
-* LCA_rank                - Best hit taxonomical association; rank of the best hit.
+* LCA_rank                - Best hit taxonomical association rank of the best hit.
 * LCA_score               - Best hit taxonomical association score
 
-The following colums indicate the best classification at each taxonomical rank and its score. A score > 0.20 indicate a high probability that the taxonomical association is good.
+The following colums indicate the best classification at each taxonomical rank and its score. A score > 0.01 indicate a high probability that the taxonomical association is good.
 
 * phylum  
 * phylum_score    
@@ -394,7 +425,7 @@ R
 Load the contig identification file.
 
 ```
-data <- read.table("Sample_503619-Ray-2016-12-10_original-nemesis.tsv", header=1, row.names=1, sep="\t")
+data <- read.table("~/UsingRayMeta/Sample-Big/BiologicalAbundances/20170616_Nemesis.tsv", header=1, row.names=1, sep="\t")
 data[1:5,]
 ```
 
@@ -410,20 +441,20 @@ How many families have been identified in our file ?
 summary(data$family)
 ```
 
-We select the lines for which species are identified with a score greater than 0.20.
+We select the lines for which species are identified with a score greater than 0.01.
 
 ```
-data.select <- data[which(data$species_score>=0.2),]
+data.select <- data[which(data$species_score>=0.01),]
 
 ### List species that were detected and sort them based on the number of contigs
 
 sort(summary(droplevels(data.select$species)))
 ```
 
-We calculate the sum of the length of contigs identified as Lactococcus Lactis.
+We calculate the sum of the length of contigs identified as Clostridium difficile (it is name *Peptoclostridium difficile* in this taxonomy).
 
 ```
-sum(data.select[which(data.select$species=="Lactococcus lactis"),"Contig_length_in_kmers"])
+sum(data.select[which(data.select$species=="Peptoclostridium difficile"),"Contig_length_in_kmers"])
 ```
 
 We can generate a table to do that with all species that had at least one contig.
@@ -447,28 +478,32 @@ plot(density(data[,2]))
 Now, we look at a specific species.
 
 ```
-summary(data.select[which(data.select$species=="Lactococcus lactis"),"Contig_mode_kmer_depth"])
-plot(density(data.select[which(data.select$species=="Lactococcus lactis"),"Contig_mode_kmer_depth"]))
+summary(data.select[which(data.select$species=="Peptoclostridium difficile"),"Contig_mode_kmer_depth"])
+plot(density(data.select[which(data.select$species=="Peptoclostridium difficile"),"Contig_mode_kmer_depth"]))
+
+summary(data.select[which(data.select$species=="Escherichia coli"),"Contig_mode_kmer_depth"])
+plot(density(data.select[which(data.select$species=="Escherichia coli"),"Contig_mode_kmer_depth"]))
+
 ```
 
 We can also overlap the curve for the two species that we know to be present in this sample.
 
 ```
-NEED FILE TO DO CODE
+plot(density(data.select[which(data.select$species=="Peptoclostridium difficile"),"Contig_mode_kmer_depth"]))
+lines(density(data.select[which(data.select$species=="Escherichia coli"),"Contig_mode_kmer_depth"]), col="red")
 ```
 
 Finally, we may want generate a list of contigs that probably originate from SPECIES. We could with this list extract the contigs from the *Contigs.fasta* file in the assembly directory.
 
 ```
-rownames(data.select[which(data.select$species==species),])
+rownames(data.select[which(data.select$species=="Peptoclostridium difficile"),])
 ```
 
-What to try it with more complex data? Repeat the same procedure with THIS file.
+Want to try it with more complex data? Repeat the same procedure with THIS file.
 
 ```
-data <- read.table("Sample_503619-Ray-2016-12-10_original-nemesis.tsv", header=1, row.names=1, sep="\t")
+data <- read.table("~/UsingRayMeta/Sample_P4J7-Assembly_nemesis.tsv", header=1, row.names=1, sep="\t")
 data[1:5,]
 ```
 
-Congratulation! You have completed the tutorial. Now, what cool science would you do with this information?
-
+Congratulation! You have completed the tutorial. Now, make good art!
