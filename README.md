@@ -15,7 +15,7 @@ For this tutorial, you will need the following software :
 
 The tutorial will be performed on the following dataset :
 
-TBD
+http://perso.genome.ulaval.ca/~plapie01/SummerSchool2017/SummerSchool2017-UsingRayMeta.tar.gz
 
 ## Introduction
 
