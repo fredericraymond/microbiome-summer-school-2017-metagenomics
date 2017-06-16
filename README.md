@@ -113,15 +113,15 @@ In a real analysis, this directory can contain thousands of bacterial genomes. S
 This final argument tells Ray which taxonomy to use.
 
 * *Genome-to-Taxon.tsv* : Makes the link between genome sequences and their taxonomical classification. For this tutorial, we use a simplified version of the Genome-to-Taxon.tsv file, since the complete version can be several Gb. 
-* *TreeOfLife-Edges.tsv* : Allows to reconstitute the taxonomical tree.
-* *Taxon-Names.tsv* : Gives the names of the nodes of the taxonomical tree (the taxa names).
+* *TreeOfLife-Edges.tsv* : Allows reconstitution of the taxonomical tree.
+* *Taxon-Names.tsv* : Gives the names of the nodes for the taxonomical tree (the taxa names).
 
 When adding new genomes to the taxonomy, one must make sure to include the matching information in these three files.
 
 
 ## Step 2 - Understanding the Ray output directory
 
-How is our assembly doing? To see at which step the assembly is currently, we can consult the file *ElapsedTime.txt*.
+How is our assembly doing? To see at which step the assembly currently is, we can consult the file *ElapsedTime.txt*.
 
 ```
 cd ~/UsingRayMeta/Sample-Small
@@ -203,7 +203,7 @@ How do you interpret these statistics?
 
 
 <details> 
-  <summary>Q1: What can you say about his assembly? Is it good? Do we have good coverage of the expected C. difficile genome? </summary>
+  <summary>Q1: What can you say about this assembly? Is it good? Do we have good coverage of the expected C. difficile genome? </summary>
    The total length of this assembly is higher than what is expecter for a C. difficile genome. When looking only at contigs longer than 500 nucleotide, the assembly is 5,224,457 nt.  The number of contigs is very high for the length of the assembly. Here, we were assembling a Clostridium difficile genome. Thus, we were expecting a genome length around 4 Mb. To troubleshoot these results, we will look at the sequencing statistics.
 </details>
 <br>
@@ -278,7 +278,7 @@ The .tsv files provide the proportion of samples that could be identified as tax
 </details>
 <br>
 <br>
-To simplify the interpretation when working with mixed population, we can look at the taxa that are at more than 0.01% of a sample. In this example, it is not that useful, but as you can see it removes the background signal from *E. coli*.
+To simplify the interpretation when working with mixed population, we can look at the taxa that represent more than 0.01% of a sample. In this example, it is not that useful, but as you can see it removes the background signal from *E. coli*.
 
 ```
  awk -F "\t" '$4>0.0001' 0.Profile.TaxonomyRank=species.tsv
@@ -289,7 +289,7 @@ To simplify the interpretation when working with mixed population, we can look a
 
 ```
 
-Now, we will move to another directory, with more complex metagenomic sample. In this second assembly, take a look at the same files we have consulted in this section to answer the following questions :
+We will move to another directory, with more complex metagenomic sample. In this second assembly, take a look at the files we consulted in this section to answer the following questions :
 
 ```
 cd ~/UsingRayMeta/Sample_P4J7-Assembly
@@ -297,7 +297,7 @@ cd ~/UsingRayMeta/Sample_P4J7-Assembly
 
 How many reads did we use?
 What is the assembly size? Broken in how many contigs?
-What is is the size of the graph? How does it relate with the size of the assembly?
+What is the size of the graph? How does it relate with the size of the assembly?
 How is the species proportion compared to the lower sequencing depth analysis?
 
 ## Step 3 - Contig binning
@@ -354,7 +354,7 @@ cd software
 git clone https://github.com/plpla/laughing-nemesis.git
 ```
 
-We would then use tho following command line to run it on our assembly :
+We would then use the following command line to run it on our assembly :
 
 ```
 python ~/software/laughing-nemesis/FindLastCommonAncester.py lca -d ~/SummerSchoolMicrobiome/Sample_RVH-2106-Ray-2017-06-06/BiologicalAbundances -t ~/SummerSchoolMicrobiome/UsingRayMeta/TreeOfLife-Edges.tsv
@@ -396,7 +396,7 @@ In this file, we gather all the beauty of Ray Meta. For each contig, we get the 
 * LCA_rank                - Best hit taxonomical association rank of the best hit.
 * LCA_score               - Best hit taxonomical association score
 
-The following colums indicate the best classification at each taxonomical rank and its score. A score > 0.01 indicate a high probability that the taxonomical association is good.
+The next colums indicate the best classification at each taxonomical rank and its score. A score > 0.01 indicate a high probability that the taxonomical association is good.
 
 * phylum  
 * phylum_score    
@@ -451,7 +451,7 @@ data.select <- data[which(data$species_score>=0.01),]
 sort(summary(droplevels(data.select$species)))
 ```
 
-We calculate the sum of the length of contigs identified as Clostridium difficile (it is name *Peptoclostridium difficile* in this taxonomy).
+We calculate the sum of the length of contigs identified as Clostridium difficile (it is named *Peptoclostridium difficile* in this taxonomy).
 
 ```
 sum(data.select[which(data.select$species=="Peptoclostridium difficile"),"Contig_length_in_kmers"])
@@ -468,7 +468,7 @@ names(genome.size) <- levels(droplevels(data.select$species))
 sort(genome.size)
 ```
 
-We will look at the coverage distribution of contigs overall. This will allow to quality control contigs binning and better interpret results.
+We will look at the coverage distribution of contigs overall. This will allow to quality control contig binning and better interpret results.
 
 ```
 summary(data[,2])
@@ -493,7 +493,7 @@ plot(density(data.select[which(data.select$species=="Peptoclostridium difficile"
 lines(density(data.select[which(data.select$species=="Escherichia coli"),"Contig_mode_kmer_depth"]), col="red")
 ```
 
-Finally, we may want generate a list of contigs that probably originate from SPECIES. We could with this list extract the contigs from the *Contigs.fasta* file in the assembly directory.
+Finally, we may want to generate a list of contigs that probably originate from SPECIES. With this list, we could extract the contigs from the *Contigs.fasta* file in the assembly directory.
 
 ```
 rownames(data.select[which(data.select$species=="Peptoclostridium difficile"),])
