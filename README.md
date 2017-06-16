@@ -26,7 +26,9 @@ Ray Meta is one of the many softwares that allow the assembly of metagenomes. As
 For this tutorial, we will use a syntetic dataset inspired by a genome we once sequenced for a collaborator. So, in theory, we are sequencing a genome from *Clostridium difficile*...
 
 ```
-wget xxx
+cd
+wget http://perso.genome.ulaval.ca/~plapie01/SummerSchool2017/SummerSchool2017-UsingRayMeta.tar.gz
+tar -xf SummerSchool2017-UsingRayMeta.tar.gz
 ```
 
 ## Step 1 - Metagenome assembly using Ray Meta
