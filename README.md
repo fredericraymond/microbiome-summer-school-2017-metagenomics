@@ -313,7 +313,7 @@ The first file to look into is in the *BiologicalAbundances/genomes/ContigIdenti
 ```
 cd ~/UsingRayMeta/Sample-Big
 
-more BiologicalAbundances/genomes/ContigIdentification.tsv
+more BiologicalAbundances/genomes/ContigIdentifications.tsv
 
 #Contig name	K-mer length	Contig length in k-mers	Contig strand	Category	Sequence number	Sequence name	Sequence length in k-mers	Matches in contig	Contig length ratio	Sequence length ratio
 contig-0	31	37550	F	Clostridium_difficile_630	1	gi|126697566|ref|NC_009089.1| Clostridium difficile 630, complet	4290222	103	0.00274301	2.40E-05
@@ -350,6 +350,8 @@ We will not be running the following steps since it take some time. It has alrea
 Enter the following commands to download the laughing-nemesis last common ancestor tool for Ray Meta.
 
 ```
+
+## Do not run this in the tutorial
 cd ~
 mkdir software
 cd software
@@ -359,12 +361,15 @@ git clone https://github.com/plpla/laughing-nemesis.git
 We would then use the following command line to run it on our assembly :
 
 ```
+## Do not run this in the tutorial
 python ~/software/laughing-nemesis/FindLastCommonAncester.py lca -d ~/SummerSchoolMicrobiome/Sample_RVH-2106-Ray-2017-06-06/BiologicalAbundances -t ~/SummerSchoolMicrobiome/UsingRayMeta/TreeOfLife-Edges.tsv
 ```
 
 Now, we look at the precomputed results.
 
 ```
+cd ~/UsingRayMeta/Sample-Big
+
 more BiologicalAbundances/20170616_Nemesis.tsv
 
 Contig-name	Contig_length_in_kmers	Contig_mode_kmer_depth	Total_colored_kmer	LCA_taxon_id	LCA_name	LCA_rank	LCA_score	phylum	phylum_score	class	class_score	order	order_score	family	family_score	genus	genus_score	species	species_score
