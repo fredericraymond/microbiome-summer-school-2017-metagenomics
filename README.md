@@ -276,7 +276,7 @@ The .tsv files provide the proportion of samples that could be identified as tax
 
 <details> 
   <summary>Q2: Take a few minutes to look at the .tsv files and try to understand what is happening with this assembly.</summary>
-   In *0.Profile.TaxonomyRank=species.tsv*, we can see that 20% of the sample is *Leuconostoc lactis* while the expected *C. difficile* is only 20% of the sample. The *E. coli* signal is background noise (< 10e-6). Yep, this sample is not pure. It is a mixed culture.
+   In *0.Profile.TaxonomyRank=species.tsv*, we can see that 20% of the sample is *E. coli* while the expected *C. difficile* is only 20% of the sample. The *Leuconostoc lactis* signal is background noise (< 10e-6). Yep, this sample is not pure. It is a mixed culture.
 </details>
 <br>
 <br>
